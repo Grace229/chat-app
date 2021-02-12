@@ -1,93 +1,104 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation </a
-            >.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br />
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire"> Continue </v-btn>
-        </v-card-actions>
+  <div id="app">
+    <Chat :messages="formattedChats" />
+    <!-- <form @submit.prevent="writeToFirestore">
+      <input v-model="text.name" type="text" placeholder="name" />
+      <input v-model="text.message" type="text" placeholder="message" />
+      <button type="submit">Add</button>
+    </form> -->
+    <!-- input -->
+    <v-footer dark padless fixed app>
+      <v-card
+        width="100%"
+        height="120px"
+        class="display-4 white gray--text text--darken-2"
+      >
+        <v-col cols="12">
+          <v-form @submit.prevent="writeToFirestore">
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="text.message"
+                    class="green green--text text--darken-2"
+                    rounded
+                    color="succes"
+                    :append-outer-icon="text.message ? 'mdi-send' : 'mdi-send'"
+                    :prepend-icon="icon"
+                    filled
+                    app
+                    clear-icon="mdi-close-circle"
+                    clearable
+                    @click:append-outer="writeToFirestore"
+                  ></v-text-field>
+                  <!-- <v-icon large color="blue darken-2"> mdi-send </v-icon> -->
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-col>
       </v-card>
-    </v-col>
-  </v-row>
+    </v-footer>
+  </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
-
+import Chat from '../components/Chat'
 export default {
   components: {
-    Logo,
-    VuetifyLogo,
+    Chat,
+  },
+  async fetch() {
+    await this.$fire.firestore
+      .collection('Chat')
+      .orderBy('time', 'desc')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          this.chats.push(doc.data())
+        })
+      })
+    this.formattedChats = this.chats.reverse()
+    console.log(this.chats)
+  },
+  data() {
+    return {
+      chats: [],
+      formattedChats: [],
+      text: {
+        name: '',
+        message: '',
+      },
+    }
+  },
+
+  methods: {
+    async writeToFirestore() {
+      const messageRef = this.$fire.firestore.collection('Chat').doc()
+      try {
+        await messageRef.set({
+          time: new Date(),
+          name: this.$store.state.username,
+          message: this.text.message,
+        })
+        this.$fetch()
+        console.log(this.text)
+      } catch (e) {
+        console.log(e)
+      }
+    },
   },
 }
 </script>
+
+<style>
+#app {
+  margin: 0px;
+  padding: 0px;
+  background-color: #ffffff;
+}
+#text {
+  background-color: white;
+  color: #000;
+}
+</style>
