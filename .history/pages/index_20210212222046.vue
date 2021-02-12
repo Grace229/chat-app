@@ -14,20 +14,24 @@
         class="display-4 white gray--text text--darken-2"
       >
         <v-form @submit.prevent="writeToFirestore">
-          <v-text-field
-            v-model="text.message"
-            class="green green--text text--darken-2"
-            rounded
-            color="succes"
-            :append-outer-icon="text.message ? 'mdi-send' : 'mdi-send'"
-            :prepend-icon="icon"
-            filled
-            app
-            clear-icon="mdi-close-circle"
-            clearable
-            @click:append-outer="writeToFirestore"
-          ></v-text-field>
-          <!-- <v-icon large color="blue darken-2"> mdi-send </v-icon> -->
+          <v-container>
+            <v-row>
+              <v-text-field
+                v-model="text.message"
+                class="green green--text text--darken-2"
+                rounded
+                color="succes"
+                :append-outer-icon="text.message ? 'mdi-send' : 'mdi-send'"
+                :prepend-icon="icon"
+                filled
+                app
+                clear-icon="mdi-close-circle"
+                clearable
+                @click:append-outer="writeToFirestore"
+              ></v-text-field>
+              <!-- <v-icon large color="blue darken-2"> mdi-send </v-icon> -->
+            </v-row>
+          </v-container>
         </v-form>
       </v-card>
     </v-footer>
